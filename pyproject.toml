@@ -28,6 +28,7 @@ classifiers = [
 ]
 requires-python = ">=3.9"
 dependencies = [
+    "aiofiles",
     "PyYAML",
 ]
 
@@ -64,12 +65,15 @@ formatters = [
     "isort",
 ]
 test = [
+    "asynctest",
     "pytest",
+    "pytest-asyncio >= 0.20",
     "pytest-cov",
     "pytest-error-for-skips",
 ]
 typing = [
     "mypy",
+    "types-aiofiles",
     "types-PyYAML",
     "typing-extensions",
 ]
