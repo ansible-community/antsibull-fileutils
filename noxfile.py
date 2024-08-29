@@ -96,7 +96,7 @@ def codeqa(session: nox.Session):
 
 @nox.session
 def typing(session: nox.Session):
-    install(session, "-e", ".[typing]", editable=True)
+    install(session, ".[typing]", editable=True)
     session.run("mypy", "src/antsibull_fileutils")
 
 
