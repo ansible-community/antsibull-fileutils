@@ -43,30 +43,58 @@ def test_load_yaml(content, expected, tmp_path):
 
 STORE_YAML_DATA = [
     (
+        {"foo": "bar", "baz": ["bam", "foobar", "aaa"]},
+        {},
+        """baz:
+- bam
+- foobar
+- aaa
+foo: bar
+""",
+    ),
+    (
+        {"foo": "bar", "baz": ["bam", "foobar", "aaa"]},
         {
-            "foo": "bar",
+            "nice": True,
+        },
+        """---
+baz:
+  - bam
+  - foobar
+  - aaa
+foo: bar
+""",
+    ),
+    (
+        {"foo": "bar", "baz": ["bam", "foobar", "aaa"]},
+        {
+            "sort_keys": False,
         },
         """foo: bar
+baz:
+- bam
+- foobar
+- aaa
 """,
     ),
 ]
 
 
 @pytest.mark.parametrize(
-    "content, expected",
+    "content, kwargs, expected",
     STORE_YAML_DATA,
 )
-def test_store_yaml(content, expected, tmp_path):
+def test_store_yaml(content, kwargs, expected, tmp_path):
     file = tmp_path / "test.yaml"
 
-    store_yaml_file(file, content)
+    store_yaml_file(file, content, **kwargs)
     with file.open("r", encoding="utf-8") as f:
         assert f.read() == expected
 
-    store_yaml_file(str(file), content)
+    store_yaml_file(str(file), content, **kwargs)
     with file.open("r", encoding="utf-8") as f:
         assert f.read() == expected
 
     stream = BytesIO()
-    store_yaml_stream(stream, content)
+    store_yaml_stream(stream, content, **kwargs)
     assert stream.getvalue().decode("utf-8") == expected
