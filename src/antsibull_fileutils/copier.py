@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import os
 import shutil
+import tempfile
 import typing as t
 
 from antsibull_fileutils.vcs import list_git_files
@@ -95,3 +96,55 @@ class GitCopier(Copier):
             # Copy the file
             dst_path = os.path.join(to_path, file_decoded)
             shutil.copyfile(src_path, dst_path)
+
+
+class CollectionCopier:
+    """
+    Creates a copy of a collection to a place where ``--playbook-dir`` can be used
+    to prefer this copy of the collection over any installed ones.
+    """
+
+    def __init__(
+        self,
+        *,
+        source_directory: str,
+        namespace: str,
+        name: str,
+        copier: Copier,
+        log_debug: t.Callable[[str], None] | None = None,
+    ):
+        self.source_directory = source_directory
+        self.namespace = namespace
+        self.name = name
+        self.copier = copier
+        self._log_debug = log_debug
+
+        self.dir = os.path.realpath(tempfile.mkdtemp(prefix="antsibull-fileutils"))
+
+    def _do_log_debug(self, msg: str, *args: t.Any) -> None:
+        if self._log_debug:
+            self._log_debug(msg, *args)
+
+    def __enter__(self) -> tuple[str, str]:
+        try:
+            collection_container_dir = os.path.join(
+                self.dir, "collections", "ansible_collections", self.namespace
+            )
+            os.makedirs(collection_container_dir)
+
+            collection_dir = os.path.join(collection_container_dir, self.name)
+            self._do_log_debug("Temporary collection directory: {!r}", collection_dir)
+
+            self.copier.copy(self.source_directory, collection_dir)
+
+            self._do_log_debug("Temporary collection directory has been populated")
+            return (
+                self.dir,
+                collection_dir,
+            )
+        except Exception:
+            shutil.rmtree(self.dir, ignore_errors=True)
+            raise
+
+    def __exit__(self, type_, value, traceback_):
+        shutil.rmtree(self.dir, ignore_errors=True)

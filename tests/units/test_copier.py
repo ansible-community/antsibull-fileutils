@@ -9,13 +9,14 @@ Test utils module.
 
 from __future__ import annotations
 
+import os
 import pathlib
 import re
 from unittest import mock
 
 import pytest
 
-from antsibull_fileutils.copier import Copier, CopierError, GitCopier
+from antsibull_fileutils.copier import CollectionCopier, Copier, CopierError, GitCopier
 
 from .utils import collect_log
 
@@ -35,7 +36,7 @@ def assert_same(a: pathlib.Path, b: pathlib.Path) -> None:
 
 
 def test_copier(tmp_path_factory):
-    directory: pathlib.Path = tmp_path_factory.mktemp("changelog-test")
+    directory: pathlib.Path = tmp_path_factory.mktemp("copier")
 
     src_dir = directory / "src"
     dest_dir = directory / "dest"
@@ -77,7 +78,7 @@ def test_copier(tmp_path_factory):
 
 
 def test_git_copier(tmp_path_factory):
-    directory: pathlib.Path = tmp_path_factory.mktemp("changelog-test")
+    directory: pathlib.Path = tmp_path_factory.mktemp("git-copier")
 
     src_dir = directory / "src"
     src_dir.mkdir()
@@ -137,3 +138,52 @@ def test_git_copier(tmp_path_factory):
         ) as exc:
             copier.copy(str(src_dir), str(dest_dir))
         m.assert_called_with(str(src_dir), git_bin_path="/path/to/git", log_debug=None)
+
+
+def test_collection_copier(tmp_path_factory):
+    src_dir: pathlib.Path = tmp_path_factory.mktemp("collection-copier")
+
+    copier = mock.MagicMock()
+
+    with CollectionCopier(
+        source_directory=src_dir, namespace="foo", name="bar", copier=copier
+    ) as (root_dir, collection_dir):
+        assert (
+            os.path.join(root_dir, "collections", "ansible_collections", "foo", "bar")
+            == collection_dir
+        )
+        assert os.path.exists(root_dir)
+        assert os.path.exists(
+            os.path.join(root_dir, "collections", "ansible_collections", "foo")
+        )
+        assert not os.path.exists(collection_dir)  # our mock doesn't create it
+
+    assert not os.path.exists(root_dir)
+    copier.copy.assert_called_with(src_dir, collection_dir)
+
+
+def test_collection_copier_fail():
+    copier = mock.MagicMock()
+    copier.copy = mock.MagicMock(side_effect=CopierError("boo"))
+
+    kwargs, debug, info = collect_log(with_info=False)
+
+    cc = CollectionCopier(
+        source_directory="/foo", namespace="foo", name="bar", copier=copier, **kwargs
+    )
+    assert os.path.exists(cc.dir)
+
+    with pytest.raises(CopierError, match="^boo$"):
+        with cc as (root_dir, collection_dir):
+            assert False
+
+    copier.copy.assert_called_with(
+        "/foo", os.path.join(cc.dir, "collections", "ansible_collections", "foo", "bar")
+    )
+    assert not os.path.exists(cc.dir)
+    assert debug == [
+        (
+            "Temporary collection directory: {!r}",
+            (os.path.join(cc.dir, "collections", "ansible_collections", "foo", "bar"),),
+        )
+    ]
