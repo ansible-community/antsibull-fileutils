@@ -13,11 +13,14 @@ from __future__ import annotations
 import subprocess
 import typing as t
 
+if t.TYPE_CHECKING:
+    from _typeshed import StrPath
+
 
 def detect_vcs(
-    path: str,
+    path: StrPath,
     *,
-    git_bin_path: str = "git",
+    git_bin_path: StrPath = "git",
     log_debug: t.Callable[[str], None] | None = None,
     log_info: t.Callable[[str], None] | None = None,
 ) -> t.Literal["none", "git"]:
@@ -40,7 +43,7 @@ def detect_vcs(
     do_log_debug("Trying to determine whether {!r} is a Git repository", path)
     try:
         result = subprocess.check_output(
-            [git_bin_path, "-C", path, "rev-parse", "--is-inside-work-tree"],
+            [str(git_bin_path), "-C", path, "rev-parse", "--is-inside-work-tree"],
             text=True,
             encoding="utf-8",
         ).strip()
@@ -58,3 +61,42 @@ def detect_vcs(
     # Fallback: no VCS detected
     do_log_debug("Cannot identify VCS")
     return "none"
+
+
+def list_git_files(
+    directory: StrPath,
+    *,
+    git_bin_path: StrPath = "git",
+    log_debug: t.Callable[[str], None] | None = None,
+) -> list[bytes]:
+    """
+    List all files not ignored by git in a directory and subdirectories.
+
+    Raises ``ValueError`` in case of errors.
+    """
+
+    def do_log_debug(msg: str, *args) -> None:
+        if log_debug:
+            log_debug(msg, *args)
+
+    do_log_debug("Identifying files not ignored by Git in {!r}", directory)
+    try:
+        result = subprocess.check_output(
+            [
+                str(git_bin_path),
+                "ls-files",
+                "-z",
+                "--cached",
+                "--others",
+                "--exclude-standard",
+                "--deduplicate",
+            ],
+            cwd=directory,
+        ).strip(b"\x00")
+        if result == b"":
+            return []
+        return result.split(b"\x00")
+    except subprocess.CalledProcessError as exc:
+        raise ValueError("Error while running git") from exc
+    except FileNotFoundError as exc:
+        raise ValueError("Cannot find git executable") from exc
