@@ -65,7 +65,6 @@ formatters = [
     "isort",
 ]
 test = [
-    "asynctest",
     "pytest",
     "pytest-asyncio >= 0.20",
     "pytest-cov",
