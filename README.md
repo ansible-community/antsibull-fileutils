@@ -60,7 +60,7 @@ To run specific tests:
 
 Unless otherwise noted in the code, it is licensed under the terms of the GNU
 General Public License v3 or, at your option, later. See
-[LICENSES/GPL-3.0-or-later.txt](https://github.com/ansible-community/antsibull-changelog/tree/main/LICENSE)
+[LICENSES/GPL-3.0-or-later.txt](https://github.com/ansible-community/antsibull-fileutils/tree/main/LICENSE)
 for a copy of the license.
 
 The repository follows the [REUSE Specification](https://reuse.software/spec/) for declaring copyright and
