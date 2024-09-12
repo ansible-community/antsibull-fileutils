@@ -85,7 +85,6 @@ async def write_file(
 
     content_bytes = content.encode(encoding)
 
-    print(file_check_content, len(content_bytes))
     if file_check_content > 0 and len(content_bytes) <= file_check_content:
         # Check whether the destination file exists and has the same content as the one we want to
         # write, in which case we won't overwrite the file
