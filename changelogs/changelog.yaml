@@ -7,3 +7,13 @@ releases:
     fragments:
       - 1.0.0.yml
     release_date: '2024-09-09'
+  1.0.1:
+    changes:
+      bugfixes:
+        - Remove accidentally left-in ``print()`` statement in ``antsibull_fileutils.io.write_file()``
+          (https://github.com/ansible-community/antsibull-fileutils/pull/5).
+      release_summary: Bugfix release.
+    fragments:
+      - 1.0.1.yml
+      - 5-io-print.yml
+    release_date: '2024-09-13'
