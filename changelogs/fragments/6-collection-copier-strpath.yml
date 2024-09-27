@@ -1,0 +1,2 @@
+bugfixes:
+  - "``CollectionCopier``'s ``source_directory`` argument did not accept ``pathlib.Path`` (https://github.com/ansible-community/antsibull-fileutils/pull/6)."
