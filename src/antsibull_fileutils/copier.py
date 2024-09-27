@@ -95,7 +95,7 @@ class GitCopier(Copier):
 
             # Copy the file
             dst_path = os.path.join(to_path, file_decoded)
-            shutil.copyfile(src_path, dst_path)
+            shutil.copyfile(src_path, dst_path, follow_symlinks=False)
 
 
 class CollectionCopier:
