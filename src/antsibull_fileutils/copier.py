@@ -107,7 +107,7 @@ class CollectionCopier:
     def __init__(
         self,
         *,
-        source_directory: str,
+        source_directory: StrPath,
         namespace: str,
         name: str,
         copier: Copier,
