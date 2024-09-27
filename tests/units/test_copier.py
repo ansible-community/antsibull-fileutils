@@ -22,16 +22,16 @@ from .utils import collect_log
 
 
 def assert_same(a: pathlib.Path, b: pathlib.Path) -> None:
+    if a.is_symlink():
+        assert b.is_symlink()
+        assert a.readlink() == b.readlink()
+        return
     if a.is_file():
         assert b.is_file()
         assert a.read_bytes() == b.read_bytes()
         return
     if a.is_dir():
         assert b.is_dir()
-        return
-    if a.is_symlink():
-        assert b.is_symlink()
-        assert a.readlink() == b.readlink()
         return
 
 
