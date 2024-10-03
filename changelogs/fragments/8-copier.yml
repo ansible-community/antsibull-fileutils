@@ -1,5 +1,6 @@
 minor_changes:
   - "Rewrite ``Copier`` and ``GitCopier`` so that both symlinks outside the tree and symlinks inside the tree are handled more correctly:
-     symlinks inside the tree are kept, while for symlinks outside the tree the content is copied.
+     symlinks inside the tree are kept, while for symlinks outside the tree the content is copied. Symlinks are normalized by default,
+     which makes this behavior similar to ansible-core's behavior in ``ansible-galaxy collection build``.
      Also copying now tries to preserve metadata
      (https://github.com/ansible-community/antsibull-fileutils/pull/8)."

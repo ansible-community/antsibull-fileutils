@@ -45,6 +45,7 @@ class _TreeCopier:
         *,
         keep_inside_symlinks: bool = True,
         keep_outside_symlinks: bool = False,
+        normalize_links: bool = True,
         log_debug: t.Callable[[str], None] | None = None,
     ):
         """
@@ -57,6 +58,7 @@ class _TreeCopier:
         self.keep_inside_symlinks = keep_inside_symlinks
         self.keep_outside_symlinks = keep_outside_symlinks
         self.never_keep = not (keep_inside_symlinks or keep_outside_symlinks)
+        self.normalize_links = normalize_links
         os.mkdir(self.dest, mode=0o700)
 
     def _do_log_debug(self, msg: str, *args: t.Any) -> None:
@@ -64,15 +66,17 @@ class _TreeCopier:
             self._log_debug(msg, *args)
 
     def _copy_link(self, directory: str, full_source: str, full_dest: str) -> None:
-        internal = (
-            False
-            if self.never_keep
-            else _is_internal(directory, os.readlink(full_source))
-        )
+        link = os.readlink(full_source)
+        if self.normalize_links:
+            full_directory = os.path.join(self.source, directory)
+            link = os.path.relpath(os.path.join(full_directory, link), full_directory)
+
+        internal = False if self.never_keep else _is_internal(directory, link)
         keep = self.keep_inside_symlinks if internal else self.keep_outside_symlinks
         if keep:
             self._do_log_debug("Copying symlink {!r} to {!r}", full_source, full_dest)
-            shutil.copy2(full_source, full_dest, follow_symlinks=False)
+            os.symlink(link, full_dest)
+            shutil.copystat(full_source, full_dest, follow_symlinks=False)
             return
 
         real_source = os.path.realpath(full_source)
@@ -135,7 +139,13 @@ class Copier:
     Allows to copy directories.
     """
 
-    def __init__(self, *, log_debug: t.Callable[[str], None] | None = None):
+    def __init__(
+        self,
+        *,
+        normalize_links: bool = True,
+        log_debug: t.Callable[[str], None] | None = None,
+    ):
+        self.normalize_links = normalize_links
         self._log_debug = log_debug
 
     def _do_log_debug(self, msg: str, *args: t.Any) -> None:
@@ -151,7 +161,12 @@ class Copier:
         self._do_log_debug(
             "Copying complete directory from {!r} to {!r}", from_path, to_path
         )
-        _TreeCopier(from_path, to_path, log_debug=self._log_debug).walk()
+        _TreeCopier(
+            from_path,
+            to_path,
+            normalize_links=self.normalize_links,
+            log_debug=self._log_debug,
+        ).walk()
 
 
 class GitCopier(Copier):
@@ -162,10 +177,11 @@ class GitCopier(Copier):
     def __init__(
         self,
         *,
+        normalize_links: bool = True,
         git_bin_path: StrPath = "git",
         log_debug: t.Callable[[str], None] | None = None,
     ):
-        super().__init__(log_debug=log_debug)
+        super().__init__(normalize_links=normalize_links, log_debug=log_debug)
         self.git_bin_path = git_bin_path
 
     def copy(self, from_path: StrPath, to_path: StrPath) -> None:
@@ -182,7 +198,12 @@ class GitCopier(Copier):
         self._do_log_debug(
             "Copying {} file(s) from {!r} to {!r}", len(files), from_path, to_path
         )
-        tc = _TreeCopier(from_path, to_path, log_debug=self._log_debug)
+        tc = _TreeCopier(
+            from_path,
+            to_path,
+            normalize_links=self.normalize_links,
+            log_debug=self._log_debug,
+        )
         for file in files:
             # Decode filename and check whether the file still exists
             # (deleted files are part of the output)

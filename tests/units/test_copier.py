@@ -47,10 +47,12 @@ def test__is_internal(directory, link, expected):
     assert _is_internal(directory, link) == expected
 
 
-def assert_same(a: pathlib.Path, b: pathlib.Path) -> None:
+def assert_same(
+    a: pathlib.Path, b: pathlib.Path, *, changed_link: str | None = None
+) -> None:
     if a.is_symlink():
         assert b.is_symlink()
-        assert a.readlink() == b.readlink()
+        assert (changed_link or a.readlink()) == b.readlink()
         return
     assert not b.is_symlink()
     if a.is_file():
@@ -253,7 +255,7 @@ def test_git_copier(tmp_path_factory):
             b"dead_link",
         ],
     ) as m:
-        copier = GitCopier(git_bin_path="/path/to/git")
+        copier = GitCopier(git_bin_path="/path/to/git", normalize_links=False)
         copier.copy(str(src_dir), str(dest_dir))
         m.assert_called_with(str(src_dir), git_bin_path="/path/to/git", log_debug=None)
         assert dest_dir.is_dir()
@@ -274,6 +276,47 @@ def test_git_copier(tmp_path_factory):
         assert_same((src_dir / "abs_link").resolve(), dest_dir / "abs_link")
         assert_same(src_dir / "dead_dir", dest_dir / "dead_dir")
 
+    dest_dir = directory / "dest4"
+    with mock.patch(
+        "antsibull_fileutils.copier.list_git_files",
+        return_value=[
+            b"link_dir",
+            b"trick_link",
+            b"out_link",
+            b"out_link_dir",
+            b"abs_link",
+            b"dead_link",
+        ],
+    ) as m:
+        copier = GitCopier(git_bin_path="/path/to/git")
+        copier.copy(str(src_dir), str(dest_dir))
+        m.assert_called_with(str(src_dir), git_bin_path="/path/to/git", log_debug=None)
+        assert dest_dir.is_dir()
+        assert {p.name for p in dest_dir.iterdir()} == {
+            "link_dir",
+            "trick_link",
+            "out_link",
+            "out_link_dir",
+            "abs_link",
+            "dead_link",
+        }
+        assert_same(src_dir / "link_dir", dest_dir / "link_dir")
+        assert_same(
+            src_dir / "trick_link",
+            dest_dir / "trick_link",
+            changed_link=pathlib.Path("empty"),
+        )
+        assert_same((src_dir / "out_link").resolve(), dest_dir / "out_link")
+        assert_same_recursively(
+            (src_dir / "out_link_dir").resolve(), dest_dir / "out_link_dir"
+        )
+        assert_same(
+            src_dir / "abs_link",
+            dest_dir / "abs_link",
+            changed_link=pathlib.Path("empty"),
+        )
+        assert_same(src_dir / "dead_dir", dest_dir / "dead_dir")
+
     def src_dst(*appendix):
         s = src_dir
         d = dest_dir
@@ -282,7 +325,7 @@ def test_git_copier(tmp_path_factory):
             d = d / a
         return str(s), str(d)
 
-    dest_dir = directory / "dest4"
+    dest_dir = directory / "dest5"
     with mock.patch(
         "antsibull_fileutils.copier.list_git_files",
         side_effect=ValueError("nada"),
@@ -295,7 +338,7 @@ def test_git_copier(tmp_path_factory):
             copier.copy(str(src_dir), str(dest_dir))
         m.assert_called_with(str(src_dir), git_bin_path="/path/to/git", log_debug=None)
 
-    dest_dir = directory / "dest5"
+    dest_dir = directory / "dest6"
     with mock.patch(
         "antsibull_fileutils.copier.list_git_files",
         return_value=[
