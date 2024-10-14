@@ -69,7 +69,7 @@ def store_yaml_stream(
     Dump ``content`` as YAML to an IO ``stream``.
     """
     dumper = _IndentedDumper if nice else _SafeDumper
-    dumper.ignore_aliases = lambda *args: True
+    dumper.ignore_aliases = lambda *args: True  # type: ignore[method-assign]
     yaml.dump(
         content,
         stream,
