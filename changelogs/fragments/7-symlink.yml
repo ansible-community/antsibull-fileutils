@@ -1,2 +1,0 @@
-bugfixes:
-  - "Make ``GitCopier`` handle symlinks correctly (https://github.com/ansible-community/antsibull-fileutils/pull/7)."
