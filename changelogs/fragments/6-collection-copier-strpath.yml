@@ -1,2 +1,0 @@
-bugfixes:
-  - "``CollectionCopier``'s ``source_directory`` argument now accepts ``pathlib.Path`` objects in addition to ``str``\ s (https://github.com/ansible-community/antsibull-fileutils/pull/6)."
