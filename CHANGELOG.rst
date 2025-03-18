@@ -4,6 +4,19 @@ antsibull-fileutils Release Notes
 
 .. contents:: Topics
 
+v1.2.0
+======
+
+Release Summary
+---------------
+
+Feature release.
+
+Minor Changes
+-------------
+
+- Allow to exclude top-level files and directories when copying trees (https://github.com/ansible-community/antsibull-fileutils/pull/14).
+
 v1.1.0
 ======
 

@@ -2,25 +2,41 @@
 
 **Topics**
 
-- <a href="#v1-1-0">v1\.1\.0</a>
+- <a href="#v1-2-0">v1\.2\.0</a>
     - <a href="#release-summary">Release Summary</a>
     - <a href="#minor-changes">Minor Changes</a>
+- <a href="#v1-1-0">v1\.1\.0</a>
+    - <a href="#release-summary-1">Release Summary</a>
+    - <a href="#minor-changes-1">Minor Changes</a>
     - <a href="#bugfixes">Bugfixes</a>
 - <a href="#v1-0-1">v1\.0\.1</a>
-    - <a href="#release-summary-1">Release Summary</a>
+    - <a href="#release-summary-2">Release Summary</a>
     - <a href="#bugfixes-1">Bugfixes</a>
 - <a href="#v1-0-0">v1\.0\.0</a>
-    - <a href="#release-summary-2">Release Summary</a>
+    - <a href="#release-summary-3">Release Summary</a>
 
-<a id="v1-1-0"></a>
-## v1\.1\.0
+<a id="v1-2-0"></a>
+## v1\.2\.0
 
 <a id="release-summary"></a>
 ### Release Summary
 
-Bugfix and feature release\.
+Feature release\.
 
 <a id="minor-changes"></a>
+### Minor Changes
+
+* Allow to exclude top\-level files and directories when copying trees \([https\://github\.com/ansible\-community/antsibull\-fileutils/pull/14](https\://github\.com/ansible\-community/antsibull\-fileutils/pull/14)\)\.
+
+<a id="v1-1-0"></a>
+## v1\.1\.0
+
+<a id="release-summary-1"></a>
+### Release Summary
+
+Bugfix and feature release\.
+
+<a id="minor-changes-1"></a>
 ### Minor Changes
 
 * Declare support for Python 3\.13 \([https\://github\.com/ansible\-community/antsibull\-fileutils/pull/10](https\://github\.com/ansible\-community/antsibull\-fileutils/pull/10)\)\.
@@ -34,7 +50,7 @@ Bugfix and feature release\.
 <a id="v1-0-1"></a>
 ## v1\.0\.1
 
-<a id="release-summary-1"></a>
+<a id="release-summary-2"></a>
 ### Release Summary
 
 Bugfix release\.
@@ -47,7 +63,7 @@ Bugfix release\.
 <a id="v1-0-0"></a>
 ## v1\.0\.0
 
-<a id="release-summary-2"></a>
+<a id="release-summary-3"></a>
 ### Release Summary
 
 Initial release\.

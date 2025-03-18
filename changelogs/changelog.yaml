@@ -37,3 +37,12 @@ releases:
       - 8-copier.yml
       - python-3.13.yml
     release_date: '2024-10-22'
+  1.2.0:
+    changes:
+      minor_changes:
+        - Allow to exclude top-level files and directories when copying trees (https://github.com/ansible-community/antsibull-fileutils/pull/14).
+      release_summary: Feature release.
+    fragments:
+      - 1.2.0.yml
+      - 14-exclude-root.yml
+    release_date: '2025-03-18'

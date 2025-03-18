@@ -1,2 +1,0 @@
-minor_changes:
-  - "Allow to exclude top-level files and directories when copying trees (https://github.com/ansible-community/antsibull-fileutils/pull/14)."
