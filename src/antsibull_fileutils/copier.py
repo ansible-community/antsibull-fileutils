@@ -122,16 +122,25 @@ class _TreeCopier:
         directory, _ = os.path.split(relative_path)
         self._copy_file(directory, relative_path)
 
-    def walk(self):
-        for root, dirs, files in os.walk(self.source, followlinks=False):
+    def walk(self, exclude_root: list[str] | None = None):
+        exclude_root_set: set[str] = set(exclude_root or [])
+        for root, dirs, files in os.walk(self.source, followlinks=False, topdown=True):
             directory = os.path.relpath(root, self.source)
             if directory == ".":
                 directory = ""
             for file in files:
+                if file in exclude_root_set:
+                    continue
                 relative_path = os.path.join(directory, file)
                 self._copy_file(directory, relative_path)
+            for path in exclude_root_set:
+                try:
+                    dirs.remove(path)
+                except ValueError:
+                    pass
             for a_dir in dirs:
                 self._create_dir(os.path.join(directory, a_dir))
+            exclude_root_set.clear()
 
 
 class Copier:
@@ -152,7 +161,13 @@ class Copier:
         if self._log_debug:
             self._log_debug(msg, *args)
 
-    def copy(self, from_path: StrPath, to_path: StrPath) -> None:
+    def copy(
+        self,
+        from_path: StrPath,
+        to_path: StrPath,
+        *,
+        exclude_root: list[str] | None = None,
+    ) -> None:
         """
         Copy a directory ``from_path`` to a destination ``to_path``.
 
@@ -166,7 +181,7 @@ class Copier:
             to_path,
             normalize_links=self.normalize_links,
             log_debug=self._log_debug,
-        ).walk()
+        ).walk(exclude_root=exclude_root)
 
 
 class GitCopier(Copier):
@@ -184,7 +199,13 @@ class GitCopier(Copier):
         super().__init__(normalize_links=normalize_links, log_debug=log_debug)
         self.git_bin_path = git_bin_path
 
-    def copy(self, from_path: StrPath, to_path: StrPath) -> None:
+    def copy(
+        self,
+        from_path: StrPath,
+        to_path: StrPath,
+        *,
+        exclude_root: list[str] | None = None,
+    ) -> None:
         self._do_log_debug("Identifying files not ignored by Git in {!r}", from_path)
         try:
             files = list_git_files(
@@ -204,10 +225,16 @@ class GitCopier(Copier):
             normalize_links=self.normalize_links,
             log_debug=self._log_debug,
         )
+        exclude_root_set = set(exclude_root or [])
+        exclude_root_prefixes = [f"{path}/" for path in exclude_root or []]
         for file in files:
             # Decode filename and check whether the file still exists
             # (deleted files are part of the output)
             file_decoded = file.decode("utf-8")
+            if file_decoded in exclude_root_set:
+                continue
+            if any(file_decoded.startswith(prefix) for prefix in exclude_root_prefixes):
+                continue
             tc.copy_file(file_decoded, ignore_non_existing=True)
 
 

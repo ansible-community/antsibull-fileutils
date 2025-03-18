@@ -104,7 +104,10 @@ def test_copier(tmp_path_factory):
     dest_dir = directory / "dest2"
     kwargs, debug, info = collect_log(with_info=False)
     copier = Copier(**kwargs)
-    copier.copy(str(src_dir), str(dest_dir))
+    copier.copy(
+        str(src_dir),
+        str(dest_dir),
+    )
     assert_same_recursively(src_dir, dest_dir)
     assert sorted(debug) == [
         (
@@ -163,6 +166,22 @@ def test_copier(tmp_path_factory):
         (
             "Copying file {!r} to {!r}",
             src_dst("file"),
+        ),
+        (
+            "Copying symlink {!r} to {!r}",
+            src_dst("link"),
+        ),
+    ]
+
+    dest_dir = directory / "dest4"
+    kwargs, debug, info = collect_log(with_info=False)
+    copier = Copier(**kwargs)
+    copier.copy(src_dir, dest_dir, exclude_root=["does-not-exist", "dir", "file"])
+    assert sorted(debug) == [
+        ("Copying complete directory from {!r} to {!r}", (src_dir, dest_dir)),
+        (
+            "Copying file {!r} to {!r}",
+            src_dst("empty"),
         ),
         (
             "Copying symlink {!r} to {!r}",
@@ -349,6 +368,23 @@ def test_git_copier(tmp_path_factory):
         with pytest.raises(FileNotFoundError) as exc:
             copier.copy(str(src_dir), str(dest_dir))
         m.assert_called_with(str(src_dir), git_bin_path="/path/to/git", log_debug=None)
+
+    dest_dir = directory / "dest7"
+    with mock.patch(
+        "antsibull_fileutils.copier.list_git_files",
+        return_value=[b"link", b"foobar", b"dir/binary_file", b"dir/another_file"],
+    ) as m:
+        kwargs, debug, info = collect_log(with_info=False)
+        copier = GitCopier(git_bin_path="/path/to/git", **kwargs)
+        copier.copy(src_dir, dest_dir, exclude_root=["does-not-exist", "link", "dir"])
+        m.assert_called_with(src_dir, git_bin_path="/path/to/git", **kwargs)
+
+        assert debug == [
+            ("Identifying files not ignored by Git in {!r}", (src_dir,)),
+            ("Copying {} file(s) from {!r} to {!r}", (4, src_dir, dest_dir)),
+        ]
+        assert dest_dir.is_dir()
+        assert {p.name for p in dest_dir.iterdir()} == set()
 
 
 def test_collection_copier(tmp_path_factory):
