@@ -12,11 +12,10 @@ from __future__ import annotations
 
 import os
 import shutil
-import tempfile
 import typing as t
 
-from antsibull_fileutils.vcs import list_git_files
 from antsibull_fileutils.tempfile import ansible_mkdtemp
+from antsibull_fileutils.vcs import list_git_files
 
 if t.TYPE_CHECKING:
     from _typeshed import StrPath
