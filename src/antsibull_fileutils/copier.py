@@ -12,9 +12,9 @@ from __future__ import annotations
 
 import os
 import shutil
-import tempfile
 import typing as t
 
+from antsibull_fileutils.tempfile import ansible_mkdtemp
 from antsibull_fileutils.vcs import list_git_files
 
 if t.TYPE_CHECKING:
@@ -259,7 +259,7 @@ class CollectionCopier:
         self.copier = copier
         self._log_debug = log_debug
 
-        self.dir = os.path.realpath(tempfile.mkdtemp(prefix="antsibull-fileutils"))
+        self.dir = os.path.realpath(ansible_mkdtemp(prefix="antsibull-fileutils"))
 
     def _do_log_debug(self, msg: str, *args: t.Any) -> None:
         if self._log_debug:
