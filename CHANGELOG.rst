@@ -4,6 +4,24 @@ antsibull-fileutils Release Notes
 
 .. contents:: Topics
 
+v1.3.0
+======
+
+Release Summary
+---------------
+
+Bugfix and feature release.
+
+Minor Changes
+-------------
+
+- Provide utilities ``antsibull_fileutils.tempfile.ansible_mkdtemp()`` and ``antsibull_fileutils.tempfile.AnsibleTemporaryDirectory`` to create temporary directories that are not part of an ``ansible_collections`` tree (https://github.com/ansible-community/antsibull-fileutils/pull/17).
+
+Bugfixes
+--------
+
+- Avoid copying collections into temporary directories that are part of an ``ansible_collections`` tree (https://github.com/ansible-community/antsibull-fileutils/pull/17).
+
 v1.2.0
 ======
 

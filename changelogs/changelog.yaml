@@ -46,3 +46,17 @@ releases:
       - 1.2.0.yml
       - 14-exclude-root.yml
     release_date: '2025-03-18'
+  1.3.0:
+    changes:
+      bugfixes:
+        - Avoid copying collections into temporary directories that are part of an
+          ``ansible_collections`` tree (https://github.com/ansible-community/antsibull-fileutils/pull/17).
+      minor_changes:
+        - Provide utilities ``antsibull_fileutils.tempfile.ansible_mkdtemp()`` and
+          ``antsibull_fileutils.tempfile.AnsibleTemporaryDirectory`` to create temporary
+          directories that are not part of an ``ansible_collections`` tree (https://github.com/ansible-community/antsibull-fileutils/pull/17).
+      release_summary: Bugfix and feature release.
+    fragments:
+      - 1.3.0.yml
+      - 17-tempfile.yml
+    release_date: '2025-06-17'
