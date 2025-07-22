@@ -32,7 +32,10 @@ def _get_tempdir_proposals() -> t.Generator[Path]:
     yield Path.cwd()
 
 
-def _is_acceptable_tempdir(directory: Path) -> bool:
+def is_acceptable_tempdir(directory: Path) -> bool:
+    """
+    Ensure that the given directory is not inside an ansible_collections tree.
+    """
     if directory.name == "ansible_collections":
         return False
     for parent in directory.parents:
@@ -41,18 +44,27 @@ def _is_acceptable_tempdir(directory: Path) -> bool:
     return True
 
 
-@functools.cache
-def _get_tempdir() -> Path:
+def find_tempdir(is_acceptable: t.Callable[[Path], bool]) -> Path:
+    """
+    Find a temporary directory that is acceptable according to the provided predicate.
+
+    Raises a ``ValueError`` if no appropriate directory can be found.
+    """
     for path in _get_tempdir_proposals():
         if not path.is_dir():
             continue
         directory = path.absolute()
-        if _is_acceptable_tempdir(directory):
+        if is_acceptable(directory):
             return directory
     candidates = ", ".join([str(path) for path in _get_tempdir_proposals()])
     raise ValueError(
-        f"Cannot find ansible-friendly temporary directory! Candidates: {candidates}"
+        f"Cannot find acceptable temporary directory! Candidates: {candidates}"
     )
+
+
+@functools.cache
+def _get_tempdir() -> Path:
+    return find_tempdir(is_acceptable_tempdir)
 
 
 def ansible_mkdtemp(*, suffix: str | None = None, prefix: str | None = None) -> Path:
@@ -66,7 +78,7 @@ def ansible_mkdtemp(*, suffix: str | None = None, prefix: str | None = None) -> 
     all do not exist.
     """
     result = Path(tempfile.mkdtemp(suffix=suffix, prefix=prefix, dir=_get_tempdir()))
-    if not _is_acceptable_tempdir(result):
+    if not is_acceptable_tempdir(result):
         # Clean up before erroring out
         try:
             result.unlink(missing_ok=True)
@@ -76,17 +88,16 @@ def ansible_mkdtemp(*, suffix: str | None = None, prefix: str | None = None) -> 
     return result
 
 
-class AnsibleTemporaryDirectory:
+class TemporaryDirectoryHelper:
     def __init__(
         self,
         *,
-        suffix: str | None = None,
-        prefix: str | None = None,
+        directory: Path,
         ignore_cleanup_errors: bool = False,
         delete: bool = True,
     ) -> None:
         """
-        Create a temporary directory and provide it as a context manager.
+        Provide a temporary directory as a context manager.
 
         Note that opposed to ``tempfile.TemporaryDirectory``, no finalizer is registered
         that will clean up the temporary directory if garbage collector cleans up the
@@ -94,7 +105,7 @@ class AnsibleTemporaryDirectory:
         """
         self._ignore_cleanup_errors = ignore_cleanup_errors
         self._delete = delete
-        self._directory = ansible_mkdtemp(suffix=suffix, prefix=prefix)
+        self._directory = directory
 
     @property
     def name(self) -> Path:
@@ -128,4 +139,33 @@ class AnsibleTemporaryDirectory:
         return f"<{self.__class__.__name__} {self.name!r}>"
 
 
-__all__ = ("ansible_mkdtemp", "AnsibleTemporaryDirectory")
+class AnsibleTemporaryDirectory(TemporaryDirectoryHelper):
+    def __init__(
+        self,
+        *,
+        suffix: str | None = None,
+        prefix: str | None = None,
+        ignore_cleanup_errors: bool = False,
+        delete: bool = True,
+    ) -> None:
+        """
+        Create a temporary directory and provide it as a context manager.
+
+        Note that opposed to ``tempfile.TemporaryDirectory``, no finalizer is registered
+        that will clean up the temporary directory if garbage collector cleans up the
+        class before ``__exit__()`` was called.
+        """
+        super().__init__(
+            directory=ansible_mkdtemp(suffix=suffix, prefix=prefix),
+            ignore_cleanup_errors=ignore_cleanup_errors,
+            delete=delete,
+        )
+
+
+__all__ = (
+    "ansible_mkdtemp",
+    "find_tempdir",
+    "is_acceptable_tempdir",
+    "AnsibleTemporaryDirectory",
+    "TemporaryDirectoryHelper",
+)
