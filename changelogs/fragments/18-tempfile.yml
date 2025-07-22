@@ -1,3 +1,0 @@
-minor_changes:
-  - "Extend ``tempfile`` module to make it easier to find customized temporary directories
-     (https://github.com/ansible-community/antsibull-fileutils/pull/18)."

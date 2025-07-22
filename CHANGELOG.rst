@@ -4,6 +4,19 @@ antsibull-fileutils Release Notes
 
 .. contents:: Topics
 
+v1.4.0
+======
+
+Release Summary
+---------------
+
+Feature release.
+
+Minor Changes
+-------------
+
+- Extend ``tempfile`` module to make it easier to find customized temporary directories (https://github.com/ansible-community/antsibull-fileutils/pull/18).
+
 v1.3.0
 ======
 
