@@ -4,6 +4,19 @@ antsibull-fileutils Release Notes
 
 .. contents:: Topics
 
+v1.5.0
+======
+
+Release Summary
+---------------
+
+Feature release.
+
+Minor Changes
+-------------
+
+- Allow ``GitCopier`` to copy the repository structure as well, if it is part of the directory that is being copied (https://github.com/ansible-community/antsibull-fileutils/pull/20).
+
 v1.4.0
 ======
 

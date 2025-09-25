@@ -70,3 +70,13 @@ releases:
       - 1.4.0.yml
       - 18-tempfile.yml
     release_date: '2025-07-22'
+  1.5.0:
+    changes:
+      minor_changes:
+        - Allow ``GitCopier`` to copy the repository structure as well, if it is part
+          of the directory that is being copied (https://github.com/ansible-community/antsibull-fileutils/pull/20).
+      release_summary: Feature release.
+    fragments:
+      - 1.5.0.yml
+      - 20-git-repo.yml
+    release_date: '2025-09-25'
