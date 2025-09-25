@@ -195,9 +195,11 @@ class GitCopier(Copier):
         normalize_links: bool = True,
         git_bin_path: StrPath = "git",
         log_debug: t.Callable[[str], None] | None = None,
+        copy_repo_structure: bool = False,
     ):
         super().__init__(normalize_links=normalize_links, log_debug=log_debug)
         self.git_bin_path = git_bin_path
+        self.copy_repo_structure = copy_repo_structure
 
     def copy(
         self,
@@ -236,6 +238,14 @@ class GitCopier(Copier):
             if any(file_decoded.startswith(prefix) for prefix in exclude_root_prefixes):
                 continue
             tc.copy_file(file_decoded, ignore_non_existing=True)
+        # Copy .git directory as well if requested
+        if self.copy_repo_structure and os.path.isdir(os.path.join(from_path, ".git")):
+            _TreeCopier(
+                os.path.join(from_path, ".git"),
+                os.path.join(to_path, ".git"),
+                normalize_links=self.normalize_links,
+                log_debug=self._log_debug,
+            ).walk()
 
 
 class CollectionCopier:
