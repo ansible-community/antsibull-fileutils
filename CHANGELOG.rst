@@ -4,6 +4,19 @@ antsibull-fileutils Release Notes
 
 .. contents:: Topics
 
+v1.5.1
+======
+
+Release Summary
+---------------
+
+Maintenance release.
+
+Minor Changes
+-------------
+
+- Declare support for Python 3.14 (https://github.com/ansible-community/antsibull-fileutils/pull/21).
+
 v1.5.0
 ======
 

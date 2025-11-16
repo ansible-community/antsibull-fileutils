@@ -2,44 +2,47 @@
 
 **Topics**
 
-- <a href="#v1-5-0">v1\.5\.0</a>
+- <a href="#v1-5-1">v1\.5\.1</a>
     - <a href="#release-summary">Release Summary</a>
     - <a href="#minor-changes">Minor Changes</a>
-- <a href="#v1-4-0">v1\.4\.0</a>
+- <a href="#v1-5-0">v1\.5\.0</a>
     - <a href="#release-summary-1">Release Summary</a>
     - <a href="#minor-changes-1">Minor Changes</a>
-- <a href="#v1-3-0">v1\.3\.0</a>
+- <a href="#v1-4-0">v1\.4\.0</a>
     - <a href="#release-summary-2">Release Summary</a>
     - <a href="#minor-changes-2">Minor Changes</a>
-    - <a href="#bugfixes">Bugfixes</a>
-- <a href="#v1-2-0">v1\.2\.0</a>
+- <a href="#v1-3-0">v1\.3\.0</a>
     - <a href="#release-summary-3">Release Summary</a>
     - <a href="#minor-changes-3">Minor Changes</a>
-- <a href="#v1-1-0">v1\.1\.0</a>
+    - <a href="#bugfixes">Bugfixes</a>
+- <a href="#v1-2-0">v1\.2\.0</a>
     - <a href="#release-summary-4">Release Summary</a>
     - <a href="#minor-changes-4">Minor Changes</a>
+- <a href="#v1-1-0">v1\.1\.0</a>
+    - <a href="#release-summary-5">Release Summary</a>
+    - <a href="#minor-changes-5">Minor Changes</a>
     - <a href="#bugfixes-1">Bugfixes</a>
 - <a href="#v1-0-1">v1\.0\.1</a>
-    - <a href="#release-summary-5">Release Summary</a>
+    - <a href="#release-summary-6">Release Summary</a>
     - <a href="#bugfixes-2">Bugfixes</a>
 - <a href="#v1-0-0">v1\.0\.0</a>
-    - <a href="#release-summary-6">Release Summary</a>
+    - <a href="#release-summary-7">Release Summary</a>
 
-<a id="v1-5-0"></a>
-## v1\.5\.0
+<a id="v1-5-1"></a>
+## v1\.5\.1
 
 <a id="release-summary"></a>
 ### Release Summary
 
-Feature release\.
+Maintenance release\.
 
 <a id="minor-changes"></a>
 ### Minor Changes
 
-* Allow <code>GitCopier</code> to copy the repository structure as well\, if it is part of the directory that is being copied \([https\://github\.com/ansible\-community/antsibull\-fileutils/pull/20](https\://github\.com/ansible\-community/antsibull\-fileutils/pull/20)\)\.
+* Declare support for Python 3\.14 \([https\://github\.com/ansible\-community/antsibull\-fileutils/pull/21](https\://github\.com/ansible\-community/antsibull\-fileutils/pull/21)\)\.
 
-<a id="v1-4-0"></a>
-## v1\.4\.0
+<a id="v1-5-0"></a>
+## v1\.5\.0
 
 <a id="release-summary-1"></a>
 ### Release Summary
@@ -49,17 +52,30 @@ Feature release\.
 <a id="minor-changes-1"></a>
 ### Minor Changes
 
+* Allow <code>GitCopier</code> to copy the repository structure as well\, if it is part of the directory that is being copied \([https\://github\.com/ansible\-community/antsibull\-fileutils/pull/20](https\://github\.com/ansible\-community/antsibull\-fileutils/pull/20)\)\.
+
+<a id="v1-4-0"></a>
+## v1\.4\.0
+
+<a id="release-summary-2"></a>
+### Release Summary
+
+Feature release\.
+
+<a id="minor-changes-2"></a>
+### Minor Changes
+
 * Extend <code>tempfile</code> module to make it easier to find customized temporary directories \([https\://github\.com/ansible\-community/antsibull\-fileutils/pull/18](https\://github\.com/ansible\-community/antsibull\-fileutils/pull/18)\)\.
 
 <a id="v1-3-0"></a>
 ## v1\.3\.0
 
-<a id="release-summary-2"></a>
+<a id="release-summary-3"></a>
 ### Release Summary
 
 Bugfix and feature release\.
 
-<a id="minor-changes-2"></a>
+<a id="minor-changes-3"></a>
 ### Minor Changes
 
 * Provide utilities <code>antsibull\_fileutils\.tempfile\.ansible\_mkdtemp\(\)</code> and <code>antsibull\_fileutils\.tempfile\.AnsibleTemporaryDirectory</code> to create temporary directories that are not part of an <code>ansible\_collections</code> tree \([https\://github\.com/ansible\-community/antsibull\-fileutils/pull/17](https\://github\.com/ansible\-community/antsibull\-fileutils/pull/17)\)\.
@@ -72,12 +88,12 @@ Bugfix and feature release\.
 <a id="v1-2-0"></a>
 ## v1\.2\.0
 
-<a id="release-summary-3"></a>
+<a id="release-summary-4"></a>
 ### Release Summary
 
 Feature release\.
 
-<a id="minor-changes-3"></a>
+<a id="minor-changes-4"></a>
 ### Minor Changes
 
 * Allow to exclude top\-level files and directories when copying trees \([https\://github\.com/ansible\-community/antsibull\-fileutils/pull/14](https\://github\.com/ansible\-community/antsibull\-fileutils/pull/14)\)\.
@@ -85,12 +101,12 @@ Feature release\.
 <a id="v1-1-0"></a>
 ## v1\.1\.0
 
-<a id="release-summary-4"></a>
+<a id="release-summary-5"></a>
 ### Release Summary
 
 Bugfix and feature release\.
 
-<a id="minor-changes-4"></a>
+<a id="minor-changes-5"></a>
 ### Minor Changes
 
 * Declare support for Python 3\.13 \([https\://github\.com/ansible\-community/antsibull\-fileutils/pull/10](https\://github\.com/ansible\-community/antsibull\-fileutils/pull/10)\)\.
@@ -104,7 +120,7 @@ Bugfix and feature release\.
 <a id="v1-0-1"></a>
 ## v1\.0\.1
 
-<a id="release-summary-5"></a>
+<a id="release-summary-6"></a>
 ### Release Summary
 
 Bugfix release\.
@@ -117,7 +133,7 @@ Bugfix release\.
 <a id="v1-0-0"></a>
 ## v1\.0\.0
 
-<a id="release-summary-6"></a>
+<a id="release-summary-7"></a>
 ### Release Summary
 
 Initial release\.

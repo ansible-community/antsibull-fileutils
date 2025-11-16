@@ -80,3 +80,12 @@ releases:
       - 1.5.0.yml
       - 20-git-repo.yml
     release_date: '2025-09-25'
+  1.5.1:
+    changes:
+      minor_changes:
+        - Declare support for Python 3.14 (https://github.com/ansible-community/antsibull-fileutils/pull/21).
+      release_summary: Maintenance release.
+    fragments:
+      - 1.5.1.yml
+      - 21-python.yml
+    release_date: '2025-11-16'
