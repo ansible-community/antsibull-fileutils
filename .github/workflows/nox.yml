@@ -43,7 +43,7 @@ jobs:
     name: "Run nox ${{ matrix.session }} session"
     steps:
       - name: Check out antsibull-fileutils
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           path: antsibull-fileutils
           persist-credentials: false
