@@ -1,0 +1,2 @@
+bugfixes:
+  - Do not show stderr output from git when auto-detecting VCSes (https://github.com/ansible-community/antsibull-fileutils/pull/26).
