@@ -4,6 +4,19 @@ antsibull-fileutils Release Notes
 
 .. contents:: Topics
 
+v1.5.2
+======
+
+Release Summary
+---------------
+
+Bugfix release.
+
+Bugfixes
+--------
+
+- Do not show stderr output from git when auto-detecting VCSes (https://github.com/ansible-community/antsibull-fileutils/pull/26).
+
 v1.5.1
 ======
 

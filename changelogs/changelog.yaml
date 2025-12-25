@@ -89,3 +89,12 @@ releases:
       - 1.5.1.yml
       - 21-python.yml
     release_date: '2025-11-16'
+  1.5.2:
+    changes:
+      bugfixes:
+        - Do not show stderr output from git when auto-detecting VCSes (https://github.com/ansible-community/antsibull-fileutils/pull/26).
+      release_summary: Bugfix release.
+    fragments:
+      - 1.5.2.yml
+      - 26-vcs-stderr.yml
+    release_date: '2025-12-25'
