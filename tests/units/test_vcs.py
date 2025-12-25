@@ -30,7 +30,9 @@ def test_detect_vcs():
     ) as m:
         kwargs, debug, info = collect_log()
         assert detect_vcs(path, git_bin_path=git_bin_path, **kwargs) == "git"
-        m.assert_called_with(git_command, text=True, encoding="utf-8")
+        m.assert_called_with(
+            git_command, text=True, encoding="utf-8", stderr=subprocess.PIPE
+        )
         assert debug == [
             ("Trying to determine whether {!r} is a Git repository", ("/path/to/dir",)),
             ("Git output: {}", ("true",)),
@@ -44,28 +46,36 @@ def test_detect_vcs():
         return_value="true\n",
     ) as m:
         assert detect_vcs(path, git_bin_path=git_bin_path) == "git"
-        m.assert_called_with(git_command, text=True, encoding="utf-8")
+        m.assert_called_with(
+            git_command, text=True, encoding="utf-8", stderr=subprocess.PIPE
+        )
 
     with mock.patch(
         "subprocess.check_output",
         return_value="foobar\n".encode("utf-8"),
     ) as m:
         assert detect_vcs(path, git_bin_path=git_bin_path) == "none"
-        m.assert_called_with(git_command, text=True, encoding="utf-8")
+        m.assert_called_with(
+            git_command, text=True, encoding="utf-8", stderr=subprocess.PIPE
+        )
 
     with mock.patch(
         "subprocess.check_output",
         side_effect=subprocess.CalledProcessError(128, path),
     ) as m:
         assert detect_vcs(path, git_bin_path=git_bin_path) == "none"
-        m.assert_called_with(git_command, text=True, encoding="utf-8")
+        m.assert_called_with(
+            git_command, text=True, encoding="utf-8", stderr=subprocess.PIPE
+        )
 
     with mock.patch(
         "subprocess.check_output",
         side_effect=FileNotFoundError(),
     ) as m:
         assert detect_vcs(path, git_bin_path=git_bin_path) == "none"
-        m.assert_called_with(git_command, text=True, encoding="utf-8")
+        m.assert_called_with(
+            git_command, text=True, encoding="utf-8", stderr=subprocess.PIPE
+        )
 
 
 TEST_LIST_GIT_FILES = [
@@ -102,7 +112,7 @@ def test_list_git_files(stdout: bytes, expected: list[str], with_logging: bool):
     ) as m:
         kwargs, debug, info = collect_log(with_debug=with_logging, with_info=False)
         assert list_git_files(path, git_bin_path=git_bin_path, **kwargs) == expected
-        m.assert_called_with(git_command, cwd=path)
+        m.assert_called_with(git_command, cwd=path, stderr=subprocess.PIPE)
         if with_logging:
             assert debug == [("Identifying files not ignored by Git in {!r}", (path,))]
 

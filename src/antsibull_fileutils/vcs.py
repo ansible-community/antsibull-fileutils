@@ -46,6 +46,7 @@ def detect_vcs(
             [str(git_bin_path), "-C", path, "rev-parse", "--is-inside-work-tree"],
             text=True,
             encoding="utf-8",
+            stderr=subprocess.PIPE,
         ).strip()
         do_log_debug("Git output: {}", result)
         if result == "true":
@@ -92,6 +93,7 @@ def list_git_files(
                 "--deduplicate",
             ],
             cwd=directory,
+            stderr=subprocess.PIPE,
         ).strip(b"\x00")
         if result == b"":
             return []
