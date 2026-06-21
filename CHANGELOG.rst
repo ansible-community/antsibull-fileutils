@@ -4,6 +4,19 @@ antsibull-fileutils Release Notes
 
 .. contents:: Topics
 
+v1.5.3
+======
+
+Release Summary
+---------------
+
+Bugfix release.
+
+Bugfixes
+--------
+
+- Fix ``GitCopier`` to correctly copy untracked directories. Right now it wrongly assumes everything untracked is a file and tries to copy it as a file, which fails for directories (https://github.com/ansible-community/antsibull-fileutils/pull/30).
+
 v1.5.2
 ======
 

@@ -98,3 +98,14 @@ releases:
       - 1.5.2.yml
       - 26-vcs-stderr.yml
     release_date: '2025-12-25'
+  1.5.3:
+    changes:
+      bugfixes:
+        - Fix ``GitCopier`` to correctly copy untracked directories. Right now it
+          wrongly assumes everything untracked is a file and tries to copy it as a
+          file, which fails for directories (https://github.com/ansible-community/antsibull-fileutils/pull/30).
+      release_summary: Bugfix release.
+    fragments:
+      - 1.5.3.yml
+      - 30-git-directories.yml
+    release_date: '2026-06-21'
