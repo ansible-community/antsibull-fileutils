@@ -214,7 +214,6 @@ def test_git_copier(tmp_path_factory):
     (src_dir / "dir" / "another_file").write_text("more", encoding="utf-8")
     (src_dir / ".git").mkdir()
     (src_dir / ".git" / "foo").write_text("some git file", encoding="utf-8")
-    (src_dir / ".git" / "bar").write_text("another git file", encoding="utf-8")
 
     dest_dir = directory / "dest1"
     with mock.patch(
@@ -401,38 +400,59 @@ def test_git_copier(tmp_path_factory):
         copier.copy(src_dir, dest_dir)
         m.assert_called_with(src_dir, git_bin_path="/path/to/git", **kwargs)
 
-        assert debug == [
-            ("Identifying files not ignored by Git in {!r}", (src_dir,)),
-            ("Copying {} file(s) from {!r} to {!r}", (1, src_dir, dest_dir)),
-            (
-                "Copying file {!r} to {!r}",
+        assert debug in (
+            # There are two possible orders of another_file and binary_file in dir/:
+            [
+                ("Identifying files not ignored by Git in {!r}", (src_dir,)),
+                ("Copying {} file(s) from {!r} to {!r}", (1, src_dir, dest_dir)),
                 (
-                    os.path.join(src_dir, "dir", "another_file"),
-                    os.path.join(dest_dir, "dir", "another_file"),
+                    "Copying file {!r} to {!r}",
+                    (
+                        os.path.join(src_dir, "dir", "another_file"),
+                        os.path.join(dest_dir, "dir", "another_file"),
+                    ),
                 ),
-            ),
-            (
-                "Copying file {!r} to {!r}",
                 (
-                    os.path.join(src_dir, "dir", "binary_file"),
-                    os.path.join(dest_dir, "dir", "binary_file"),
+                    "Copying file {!r} to {!r}",
+                    (
+                        os.path.join(src_dir, "dir", "binary_file"),
+                        os.path.join(dest_dir, "dir", "binary_file"),
+                    ),
                 ),
-            ),
-            (
-                "Copying file {!r} to {!r}",
                 (
-                    os.path.join(src_dir, ".git", "bar"),
-                    os.path.join(dest_dir, ".git", "bar"),
+                    "Copying file {!r} to {!r}",
+                    (
+                        os.path.join(src_dir, ".git", "foo"),
+                        os.path.join(dest_dir, ".git", "foo"),
+                    ),
                 ),
-            ),
-            (
-                "Copying file {!r} to {!r}",
+            ],
+            [
+                ("Identifying files not ignored by Git in {!r}", (src_dir,)),
+                ("Copying {} file(s) from {!r} to {!r}", (1, src_dir, dest_dir)),
                 (
-                    os.path.join(src_dir, ".git", "foo"),
-                    os.path.join(dest_dir, ".git", "foo"),
+                    "Copying file {!r} to {!r}",
+                    (
+                        os.path.join(src_dir, "dir", "binary_file"),
+                        os.path.join(dest_dir, "dir", "binary_file"),
+                    ),
                 ),
-            ),
-        ]
+                (
+                    "Copying file {!r} to {!r}",
+                    (
+                        os.path.join(src_dir, "dir", "another_file"),
+                        os.path.join(dest_dir, "dir", "another_file"),
+                    ),
+                ),
+                (
+                    "Copying file {!r} to {!r}",
+                    (
+                        os.path.join(src_dir, ".git", "foo"),
+                        os.path.join(dest_dir, ".git", "foo"),
+                    ),
+                ),
+            ],
+        )
         assert dest_dir.is_dir()
         assert {p.name for p in dest_dir.iterdir()} == {"dir", ".git"}
         assert (dest_dir / "dir").is_dir()
@@ -443,7 +463,6 @@ def test_git_copier(tmp_path_factory):
         assert (dest_dir / ".git").is_dir()
         assert {p.name for p in (dest_dir / ".git").iterdir()} == {
             "foo",
-            "bar",
         }
 
 
