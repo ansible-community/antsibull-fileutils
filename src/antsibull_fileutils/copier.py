@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import os
 import shutil
+import stat
 import typing as t
 
 from antsibull_fileutils.tempfile import ansible_mkdtemp
@@ -201,6 +202,20 @@ class GitCopier(Copier):
         self.git_bin_path = git_bin_path
         self.copy_repo_structure = copy_repo_structure
 
+    def _copy_directory(
+        self,
+        *,
+        from_path: StrPath,
+        to_path: StrPath,
+        path: str,
+    ) -> None:
+        _TreeCopier(
+            os.path.join(from_path, path),
+            os.path.join(to_path, path),
+            normalize_links=self.normalize_links,
+            log_debug=self._log_debug,
+        ).walk()
+
     def copy(
         self,
         from_path: StrPath,
@@ -237,15 +252,21 @@ class GitCopier(Copier):
                 continue
             if any(file_decoded.startswith(prefix) for prefix in exclude_root_prefixes):
                 continue
-            tc.copy_file(file_decoded, ignore_non_existing=True)
+            try:
+                st = os.lstat(os.path.join(from_path, file_decoded))
+                is_dir = stat.S_ISDIR(st.st_mode)
+            except FileNotFoundError:
+                # This shouldn't really happen, except in tests...
+                is_dir = False
+            if is_dir:
+                self._copy_directory(
+                    from_path=from_path, to_path=to_path, path=file_decoded
+                )
+            else:
+                tc.copy_file(file_decoded, ignore_non_existing=True)
         # Copy .git directory as well if requested
         if self.copy_repo_structure and os.path.isdir(os.path.join(from_path, ".git")):
-            _TreeCopier(
-                os.path.join(from_path, ".git"),
-                os.path.join(to_path, ".git"),
-                normalize_links=self.normalize_links,
-                log_debug=self._log_debug,
-            ).walk()
+            self._copy_directory(from_path=from_path, to_path=to_path, path=".git")
 
 
 class CollectionCopier:
