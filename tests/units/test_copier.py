@@ -212,6 +212,9 @@ def test_git_copier(tmp_path_factory):
     (src_dir / "file").write_text("content", encoding="utf-8")
     (src_dir / "dir" / "binary_file").write_bytes(b"\x00\x01\x02")
     (src_dir / "dir" / "another_file").write_text("more", encoding="utf-8")
+    (src_dir / ".git").mkdir()
+    (src_dir / ".git" / "foo").write_text("some git file", encoding="utf-8")
+    (src_dir / ".git" / "bar").write_text("another git file", encoding="utf-8")
 
     dest_dir = directory / "dest1"
     with mock.patch(
@@ -392,7 +395,9 @@ def test_git_copier(tmp_path_factory):
         return_value=[b"dir/"],
     ) as m:
         kwargs, debug, info = collect_log(with_info=False)
-        copier = GitCopier(git_bin_path="/path/to/git", **kwargs)
+        copier = GitCopier(
+            git_bin_path="/path/to/git", copy_repo_structure=True, **kwargs
+        )
         copier.copy(src_dir, dest_dir)
         m.assert_called_with(src_dir, git_bin_path="/path/to/git", **kwargs)
 
@@ -413,13 +418,32 @@ def test_git_copier(tmp_path_factory):
                     os.path.join(dest_dir, "dir", "binary_file"),
                 ),
             ),
+            (
+                "Copying file {!r} to {!r}",
+                (
+                    os.path.join(src_dir, ".git", "bar"),
+                    os.path.join(dest_dir, ".git", "bar"),
+                ),
+            ),
+            (
+                "Copying file {!r} to {!r}",
+                (
+                    os.path.join(src_dir, ".git", "foo"),
+                    os.path.join(dest_dir, ".git", "foo"),
+                ),
+            ),
         ]
         assert dest_dir.is_dir()
-        assert {p.name for p in dest_dir.iterdir()} == {"dir"}
+        assert {p.name for p in dest_dir.iterdir()} == {"dir", ".git"}
         assert (dest_dir / "dir").is_dir()
         assert {p.name for p in (dest_dir / "dir").iterdir()} == {
             "another_file",
             "binary_file",
+        }
+        assert (dest_dir / ".git").is_dir()
+        assert {p.name for p in (dest_dir / ".git").iterdir()} == {
+            "foo",
+            "bar",
         }
 
 
