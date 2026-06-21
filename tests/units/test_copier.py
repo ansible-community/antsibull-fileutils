@@ -386,6 +386,42 @@ def test_git_copier(tmp_path_factory):
         assert dest_dir.is_dir()
         assert {p.name for p in dest_dir.iterdir()} == set()
 
+    dest_dir = directory / "dest8"
+    with mock.patch(
+        "antsibull_fileutils.copier.list_git_files",
+        return_value=[b"dir/"],
+    ) as m:
+        kwargs, debug, info = collect_log(with_info=False)
+        copier = GitCopier(git_bin_path="/path/to/git", **kwargs)
+        copier.copy(src_dir, dest_dir)
+        m.assert_called_with(src_dir, git_bin_path="/path/to/git", **kwargs)
+
+        assert debug == [
+            ("Identifying files not ignored by Git in {!r}", (src_dir,)),
+            ("Copying {} file(s) from {!r} to {!r}", (1, src_dir, dest_dir)),
+            (
+                "Copying file {!r} to {!r}",
+                (
+                    os.path.join(src_dir, "dir", "another_file"),
+                    os.path.join(dest_dir, "dir", "another_file"),
+                ),
+            ),
+            (
+                "Copying file {!r} to {!r}",
+                (
+                    os.path.join(src_dir, "dir", "binary_file"),
+                    os.path.join(dest_dir, "dir", "binary_file"),
+                ),
+            ),
+        ]
+        assert dest_dir.is_dir()
+        assert {p.name for p in dest_dir.iterdir()} == {"dir"}
+        assert (dest_dir / "dir").is_dir()
+        assert {p.name for p in (dest_dir / "dir").iterdir()} == {
+            "another_file",
+            "binary_file",
+        }
+
 
 def test_collection_copier(tmp_path_factory):
     src_dir: pathlib.Path = tmp_path_factory.mktemp("collection-copier")
