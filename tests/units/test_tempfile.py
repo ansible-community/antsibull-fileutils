@@ -19,7 +19,10 @@ from unittest import mock
 import pytest
 
 from antsibull_fileutils.tempfile import (
+    AnsibleTemporaryDirectory,
     TemporaryDirectoryHelper,
+    _get_tempdir,
+    ansible_mkdtemp,
     find_tempdir,
     is_acceptable_tempdir,
 )
@@ -62,6 +65,7 @@ def set_env_var(env_var: str, value: str | None):
 
 def test_find_tempdir(tmp_path: Path) -> None:
     random_dirname = "fooThaequie4QuaP3tie"
+    _get_tempdir.cache_clear()
 
     def is_acceptable(path: Path) -> bool:
         print(path)
@@ -84,6 +88,37 @@ def test_find_tempdir(tmp_path: Path) -> None:
 
     with pytest.raises(ValueError):
         find_tempdir(lambda path: False)
+
+
+def test_ansible_mkdtemp(tmp_path: Path) -> None:
+    random_dirname = "fooThaequie4QuaP3tie"
+    _get_tempdir.cache_clear()
+
+    def is_acceptable(path: Path) -> bool:
+        print(path)
+        if path.name == random_dirname:
+            return True
+        for parent in path.parents:
+            if parent.name == random_dirname:
+                return True
+        return False
+
+    with mock.patch(
+        "antsibull_fileutils.tempfile.is_acceptable_tempdir", is_acceptable
+    ):
+        random_dir = tmp_path / random_dirname / "bar"
+        random_dir.mkdir(parents=True)
+        print(random_dir)
+        with set_env_var("ANTSIBULL_FILEUTILS_TMPDIR", str(random_dir)):
+            result = ansible_mkdtemp()
+            assert result.is_relative_to(random_dir)
+
+    with mock.patch(
+        "antsibull_fileutils.tempfile.is_acceptable_tempdir", lambda path: False
+    ):
+        with set_env_var("ANTSIBULL_FILEUTILS_TMPDIR", None):
+            with pytest.raises(ValueError):
+                ansible_mkdtemp()
 
 
 def test_TemporaryDirectoryHelper(tmp_path_factory) -> None:
@@ -115,6 +150,29 @@ def test_TemporaryDirectoryHelper(tmp_path_factory) -> None:
 
     assert temp.is_dir()
     with TemporaryDirectoryHelper(directory=temp, delete=False):
+        assert temp.is_dir()
+        temp.rmdir()
+    assert not temp.exists()
+    assert not temp.is_dir()
+
+
+def test_AnsibleTemporaryDirectory() -> None:
+    _get_tempdir.cache_clear()
+
+    tdh = AnsibleTemporaryDirectory()
+    temp = tdh.name
+    with tdh:
+        assert temp.is_dir()
+        assert tdh.name == temp
+    assert not temp.exists()
+    assert not temp.is_dir()
+    assert tdh.name == temp
+
+    with AnsibleTemporaryDirectory(delete=False) as temp:
+        assert temp.is_dir()
+    assert temp.is_dir()
+
+    with AnsibleTemporaryDirectory(delete=False) as temp:
         assert temp.is_dir()
         temp.rmdir()
     assert not temp.exists()

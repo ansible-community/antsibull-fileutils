@@ -31,7 +31,7 @@ def _is_internal(directory: str, link: str) -> bool:
     if os.path.isabs(dest):
         return False
 
-    if os.path.splitdrive(dest)[0]:
+    if os.path.splitdrive(dest)[0]:  # pragma: no cover -- this is Windows only
         return False
 
     normpath = os.path.normpath(dest)
