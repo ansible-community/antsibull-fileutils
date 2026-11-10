@@ -33,7 +33,9 @@ def install(session: nox.Session, *args, editable=False, **kwargs):
     session.install(*args, "-U", **kwargs)
 
 
-@nox.session(python=["3.9", "3.10", "3.11", "3.12", "3.13", "3.14", "3.15"])
+@nox.session(
+    python=["3.9", "3.10", "3.11", "3.12", "3.13", "3.14", "3.15"], allow_parallel=True
+)
 def test(session: nox.Session):
     install(
         session,
@@ -68,14 +70,12 @@ def coverage(session: nox.Session):
     session.run("coverage", "report", "-m")
 
 
-@nox.session
+@nox.session(allow_parallel=True, requires=["formatters", "codeqa", "typing"])
 def lint(session: nox.Session):
-    session.notify("formatters")
-    session.notify("codeqa")
-    session.notify("typing")
+    pass
 
 
-@nox.session
+@nox.session(allow_parallel=IN_CI)
 def formatters(session: nox.Session):
     install(session, ".[formatters]")
     posargs = list(session.posargs)
@@ -85,7 +85,7 @@ def formatters(session: nox.Session):
     session.run("black", *posargs, "src", "tests", "noxfile.py")
 
 
-@nox.session
+@nox.session(allow_parallel=True)
 def codeqa(session: nox.Session):
     install(session, ".[codeqa]", editable=True)
     session.run("flake8", "src", *session.posargs)
@@ -94,7 +94,7 @@ def codeqa(session: nox.Session):
     session.run("antsibull-changelog", "lint")
 
 
-@nox.session
+@nox.session(allow_parallel=True)
 def typing(session: nox.Session):
     install(session, ".[typing]", editable=True)
     session.run("mypy", "src/antsibull_fileutils")

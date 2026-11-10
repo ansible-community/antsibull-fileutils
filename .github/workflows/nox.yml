@@ -74,6 +74,7 @@ jobs:
           sessions: ${{ matrix.session }}
           force-pythons: ${{ matrix.force-python }}
           working-directory: antsibull-fileutils
+          parallel: auto
           codecov: ${{ matrix.codecov }}
           codecov-session: coverage
           codecov-token: ${{ secrets.CODECOV_TOKEN }}
