@@ -39,7 +39,11 @@ def install(session: nox.Session, *args, editable=False, **kwargs):
 def test(session: nox.Session):
     install(
         session,
-        ".[test, coverage]",
+        ".",
+        "--group",
+        "test",
+        "--group",
+        "coverage",
         editable=True,
     )
     covfile = Path(session.create_tmp(), ".coverage")
@@ -60,7 +64,7 @@ def test(session: nox.Session):
 
 @nox.session
 def coverage(session: nox.Session):
-    install(session, ".[coverage]", editable=True)
+    install(session, ".", "--group", "coverage", editable=True)
     combined = map(str, Path().glob(".nox/*/tmp/.coverage"))
     # Combine the results into a single .coverage file in the root
     session.run("coverage", "combine", "--keep", *combined)
@@ -77,7 +81,7 @@ def lint(session: nox.Session):
 
 @nox.session(allow_parallel=IN_CI)
 def formatters(session: nox.Session):
-    install(session, ".[formatters]")
+    install(session, ".", "--group", "formatters")
     posargs = list(session.posargs)
     if IN_CI:
         posargs.append("--check")
@@ -87,7 +91,7 @@ def formatters(session: nox.Session):
 
 @nox.session(allow_parallel=True)
 def codeqa(session: nox.Session):
-    install(session, ".[codeqa]", editable=True)
+    install(session, ".", "--group", "codeqa", editable=True)
     session.run("flake8", "src", *session.posargs)
     session.run("pylint", "--rcfile", ".pylintrc.automated", "src/antsibull_fileutils")
     session.run("reuse", "lint")
@@ -96,7 +100,7 @@ def codeqa(session: nox.Session):
 
 @nox.session(allow_parallel=True)
 def typing(session: nox.Session):
-    install(session, ".[typing]", editable=True)
+    install(session, ".", "--group", "typing", editable=True)
     session.run("mypy", "src/antsibull_fileutils")
 
 
